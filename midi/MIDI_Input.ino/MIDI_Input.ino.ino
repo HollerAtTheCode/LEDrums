@@ -18,7 +18,7 @@
 //#define LED_PIN_TOM3 8
 //#define LED_PIN_RACK 9
 
-Adafruit_NeoPixel snareLeds(LED_COUNT_SNARE, LED_PIN_SNARE, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel snareLeds = Adafruit_NeoPixel(LED_COUNT_SNARE, LED_PIN_SNARE, NEO_GRB + NEO_KHZ800);
 //Adafruit_NeoPixel tom1Leds(LED_COUNT_TOM, LED_PIN_TOM1, NEO_GRB + NEO_KHZ800);
 //Adafruit_NeoPixel tom2Leds(LED_COUNT_TOM, LED_PIN_TOM2, NEO_GRB + NEO_KHZ800);
 //Adafruit_NeoPixel tom3Leds(LED_COUNT_TOM, LED_PIN_TOM3, NEO_GRB + NEO_KHZ800);
@@ -63,6 +63,11 @@ void MyHandleNoteOn(byte channel, byte pitch, byte velocity) {
   }
   if (pitch == SNARE || pitch == SNARE_RIM || pitch == SNARE_RIM2) {
     Serial.print("Snare");
+    snareLeds.setBrightness(100);
+    snareLeds.show();
+    delay(50);
+    snareLeds.setBrightness(5);
+    snareLeds.show();
   }
   else if (pitch == TOM1 || pitch == TOM1_RIM) {
     Serial.print("TOM1");
@@ -92,16 +97,28 @@ void setup() {
   Serial.begin(9600);
 
   snareLeds.begin();
+  snareLeds.setBrightness(5);
+  colorWipe(snareLeds.Color(66, 239, 245), 50);
+  snareLeds.show();
+  
   //tom1Leds.begin();
   //tom2Leds.begin();
   //tom3Leds.begin();
   //rackLeds.begin();
-  
   pinMode (LED, OUTPUT);
   MIDI.begin(10);
   MIDI.setHandleNoteOn(MyHandleNoteOn);
 }
 
-void loop() { // Main loop
+void colorWipe(uint32_t color, int wait) {
+  for(int i=0; i<LED_COUNT_SNARE; i++) { // For each pixel in strip...
+    snareLeds.setPixelColor(i, color);         //  Set pixel's color (in RAM)
+    snareLeds.show();                          //  Update strip to match
+    delay(wait);                           //  Pause for a moment
+  }
+}
+
+void loop() {
+  // Main loop
   MIDI.read(); // Continually check what Midi Commands have been received.
 }
